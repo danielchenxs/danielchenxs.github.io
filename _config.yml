@@ -5,7 +5,7 @@ header-img: img/home-bg.jpg
 email: 
 description: "Cool Blog"    # 随便说点，描述一下
 keyword: ""
-url: "http://127.0.0.1:4000"              # your host, for absolute URL
+url: "https://danielchenxs.github.io/"              # your host, for absolute URL
 # baseurl: "/blog"         # for example, '/blog' if your blog hosted on 'host/blog'
 
 
