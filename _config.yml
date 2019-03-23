@@ -1,22 +1,24 @@
 # Site settings
-title: Your Blog
-SEOTitle: 你的博客 | Your Blog
+title: Chenxs Blog             # 你的博客网站标题
+SEOTitle: Chenxs Blog           # 在后面会详细谈到
 header-img: img/home-bg.jpg
-email: huxpro@gmail.com
-description: ""
+email: 
+description: "Cool Blog"    # 随便说点，描述一下
 keyword: ""
 url: "http://127.0.0.1:4000"              # your host, for absolute URL
-baseurl: "/huxblog-boilerplate"         # for example, '/blog' if your blog hosted on 'host/blog'
+baseurl: "/blog"         # for example, '/blog' if your blog hosted on 'host/blog'
+
+
 
 
 
 # SNS settings
 RSS: false
-weibo_username:     huxpro
-zhihu_username:     huxpro
-github_username:    huxpro
+weibo_username:     Chenxs
+zhihu_username:     Chenxs
+github_username:    Chenxs
 #twitter_username:  huxpro
-facebook_username:  huxpro
+facebook_username:  Chenxs
 
 
 
@@ -50,7 +52,7 @@ kramdown:
 #disqus_username: _your_disqus_short_name_
 
 # Duoshuo settings
-duoshuo_username: huxblog
+duoshuo_username: Chenxs
 # Share component is depend on Comment so we can NOT use share only.
 duoshuo_share: true                     # set to false if you want to use Comment without Sharing
 
