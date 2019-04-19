@@ -1,0 +1,98 @@
+---
+layout:     post
+title:      "基于expect脚本快速连接远程机器"
+subtitle:   ""
+date:       2017-08-31
+author:     "Chenxs"
+header-img: "img/post-bg-js-version.jpg"
+tags:
+    - Linux
+    - script
+---
+![](/media/15041994938622.jpg)
+
+程序员的日常：`写bug`-->`找bug`-->`改bug`-->`写bug`
+<!-- more -->
+于是就需要经常登录测试或者是生产服务器上进行暗中观察,但如果每次输入都要ssh xxx@xxx.xxx.xxx.xx 然后还要输密码，岂不是爆炸？
+一般有两种方法：
+#### 一、在服务器上存入你的密钥 
+
+#### 二、通过expect脚本进行自动交互登录
+
+expect基于TCL语言，不知道无所谓，反正装个expect先
+
+Linux 下 安装expect
+>yum install expect
+
+Mac 下 安装expect
+
+>brew install homebrew/dupes/expect
+ 
+
+简单使用的话，上手比较快，不赘述了，可以去[这里](http://xstarcd.github.io/wiki/shell/expect.html)看看
+
+
+登录（login.sh）
+
+```
+#!/usr/bin/expect -f    
+
+#登录
+
+set username chenxusheng  //设置用户名
+set host 192.168.0.1      //ip
+set password 123456       //密码
+set time -1         //超时时间，-1永不超时
+
+spawn ssh $username@$host -i ~/key/mykey.pem //如果没有密钥文件，则到host为止即可
+expect "*password*"  //等待出现“password”,超时时间设置就用在这里
+send "$password\r"   //自动输入密码，“\r” 相当于回车
+interact            //作用是执行完继续留在远程机器
+expect eof          //结束
+```
+
+登录测试环境并进行tail (tail.sh)
+
+```
+#!/usr/bin/expect -f 
+
+#直接tail 测试环境
+
+set host [lindex $argv 0]     //传入第一个参数
+set pro [lindex $argv 1]      //传入第二个参数
+
+if { "$pro"=="c" } {            //只有大括号，特别注意括号间的空格，不空就会报错
+set pro ccc.log
+ } elseif { "$pro"=="t" } {
+ set pro ttt.log
+ } elseif { "$pro"=="n" } { 
+set pro nnn.log 
+}
+
+spawn ssh root@192.168.0.$host      //可以选择ip号段下的机器
+expect "*root*"                   //已在服务器添加了密钥，不用再输密码
+send "tail -300f /log/$pro\r"       //查看对应日志
+interact
+expect eof
+```
+执行的话很简单，在终端：expect login.sh  或者 expect tail.sh 1 c
+
+更加便利一点的话，还有2种执行脚本的方法
+
+1.使用iterm2的profile
+
+创建profile,设置快捷键和命令，还能设置弹出窗口的方式及样式
+
+![](/media/15041964038943.jpg)
+
+2.使用zsh的别名功能
+![](/media/15041966748294.jpg)
+
+两个方式：
+执行的话，例如
+别名  `ssb`
+方法  `sst 1 c`
+
+（是不是很方便呢？hhh）
+
+
