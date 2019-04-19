@@ -34,7 +34,7 @@ Mac 下 安装expect
 
 登录（login.sh）
 
-```
+``` zsh
 #!/usr/bin/expect -f    
 
 #登录
@@ -53,7 +53,7 @@ expect eof          //结束
 
 登录测试环境并进行tail (tail.sh)
 
-```
+``` zsh
 #!/usr/bin/expect -f 
 
 #直接tail 测试环境

@@ -13,13 +13,13 @@ tags:
 
 # 序列化相关问题
 
-####1 transient
+### transient
 ```
 transient Set<Map.Entry<K,V>> entrySet;
 ```
 序列化有两种方式
-1.serializable 
-2.
+* 1.实现Serializable接口(隐式序列化) 
+* 2.实现Externalizable接口。(显式序列化)
 
 transient, static 不会被序列化
 使用场景：
@@ -31,7 +31,7 @@ transient, static 不会被序列化
 重写writeObject,readObject
 比如hashMap（原因：比如在不同虚拟机上，entry的排序等会不同，所以不序列化，另外写入和读取）
 
-```
+``` java
     private void writeObject(java.io.ObjectOutputStream s)
         throws IOException {
         int buckets = capacity();
@@ -43,7 +43,7 @@ transient, static 不会被序列化
     }
 ```
 
-```
+``` java
     private void readObject(java.io.ObjectInputStream s)
         throws IOException, ClassNotFoundException {
         // Read in the threshold (ignored), loadfactor, and any hidden stuff
