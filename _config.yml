@@ -14,11 +14,11 @@ url: "https://danielchenxs.github.io/"              # your host, for absolute UR
 
 # SNS settings
 RSS: false
-weibo_username:     Chenxs
-zhihu_username:     Chenxs
-github_username:    Chenxs
-#twitter_username:  huxpro
-facebook_username:  Chenxs
+# weibo_username:     Chenxs
+# zhihu_username:     Chenxs
+github_username:    danielchenxs/danielchenxs.github.io
+# #twitter_username:  huxpro
+# facebook_username:  Chenxs
 
 
 
@@ -71,7 +71,7 @@ duoshuo_share: true                     # set to false if you want to use Commen
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
 sidebar-about-description: "coding"
-sidebar-avatar: /img/avatar-chenxs.jpeg     # use absolute URL, seeing it's used in both `/` and `/about/`
+sidebar-avatar: /blog/img/avatar-chenxs.jpeg     # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
 
