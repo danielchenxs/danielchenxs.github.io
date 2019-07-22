@@ -51,7 +51,7 @@ tags:
 
 *图片来自网络*
 
-![image-20190711234000993](/Users/chenxs/Documents/my/md/notes/assets/image-20190711234000993.png)
+![image-20190711234000993](../_site/img/image-20190711234000993.png)
 
 
 
