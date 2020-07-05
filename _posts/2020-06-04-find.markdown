@@ -1,0 +1,132 @@
+---
+
+layout:     post
+title:      "Mysql索引相关"
+subtitle:   ""
+date:       2019-07-21
+author:     "Chenxs"
+header-img: "img/post-bg-js-version.jpg"
+tags:
+    - Mysql
+    - 索引
+---
+
+# 一次线上排查
+
+
+
+### 背景
+
+同事新添加了 [jaspyt](https://github.com/jasypt/jasypt) 用来给数据库连接配置进行加密。环境是druid+mysql 
+
+我发现线上日志有一些奇怪的报错，诡异的是线上数据库CURD起来没有问题，但是线程池新建线程的时候会有报错
+
+显示数据库连接错误。
+
+```
+Caused by: java.sql.SQLException: Access denied for user 'root'@'127.0.0.1' (using password: YES)
+        at com.mysql.jdbc.SQLError.createSQLException(SQLError.java:965)
+        at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:3976)
+        at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:3912)
+        at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:871)
+        at com.mysql.jdbc.MysqlIO.proceedHandshakeWithPluggableAuthentication(MysqlIO.java:1714)
+        at com.mysql.jdbc.MysqlIO.doHandshake(MysqlIO.java:1224)
+        at com.mysql.jdbc.ConnectionImpl.coreConnect(ConnectionImpl.java:2190)
+        at com.mysql.jdbc.ConnectionImpl.connectWithRetries(ConnectionImpl.java:2037)
+```
+
+
+
+### 尝试
+
+不知道是什么原因，一开始怀疑是druid后面新建线程的时候去获取`PropertySource` 没有解密，后来发现不是。先去去看了下jaspyt的源码，了解了下工作原理。
+
+
+
+### Environment与PropertySources
+
+
+
+```java
+MutablePropertySources propertySources = environment.getPropertySources();
+```
+
+### jaspyt工作原理
+
+简单介绍下jaspyt的工作原理。
+
+总结一下，就是通过实现BeanFactoryPostProcessor的postProcessBeanFactory，这里有两种方式，一种是对`PropertySource`进行动态代理，还有一种默认的是把对`PropertySource`进行包装成，使之具有解密功能
+
+```java
+public class EnableEncryptablePropertiesBeanFactoryPostProcessor implements BeanFactoryPostProcessor, Ordered {
+//.....
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        LOG.info("Post-processing PropertySource instances");
+        EncryptablePropertyResolver propertyResolver = beanFactory.getBean(RESOLVER_BEAN_NAME, EncryptablePropertyResolver.class);
+        EncryptablePropertyFilter propertyFilter = beanFactory.getBean(FILTER_BEAN_NAME, EncryptablePropertyFilter.class);
+        MutablePropertySources propSources = environment.getPropertySources();
+        convertPropertySources(interceptionMode, skipPropertySourceClasses, propertyResolver, propertyFilter, propSources);
+    }
+
+    @Override
+    public int getOrder() {
+        return Ordered.LOWEST_PRECEDENCE - 100;
+    }
+}
+```
+
+
+
+`EncryptablePropertySourceConverter#proxyPropertySource 代理`
+
+```java
+    private static <T> PropertySource<T> proxyPropertySource(PropertySource<T> propertySource, EncryptablePropertyResolver resolver, EncryptablePropertyFilter propertyFilter) {
+        //Silly Chris Beams for making CommandLinePropertySource getProperty and containsProperty methods final. Those methods
+        //can't be proxied with CGLib because of it. So fallback to wrapper for Command Line Arguments only.
+        if (CommandLinePropertySource.class.isAssignableFrom(propertySource.getClass())
+                // Other PropertySource classes like org.springframework.boot.env.OriginTrackedMapPropertySource
+                // are final classes as well
+                || Modifier.isFinal(propertySource.getClass().getModifiers())) {
+            return instantiatePropertySource(propertySource, resolver, propertyFilter);
+        }
+        ProxyFactory proxyFactory = new ProxyFactory();
+        proxyFactory.setTargetClass(propertySource.getClass());
+        proxyFactory.setProxyTargetClass(true);
+        proxyFactory.addInterface(EncryptablePropertySource.class);
+        proxyFactory.setTarget(propertySource);
+        proxyFactory.addAdvice(new EncryptablePropertySourceMethodInterceptor<>(propertySource, resolver, propertyFilter));
+        return (PropertySource<T>) proxyFactory.getProxy();
+    }
+```
+
+`EncryptablePropertySourceConverter#instantiatePropertySource 包装`
+
+```java
+    private static <T> PropertySource<T> instantiatePropertySource(PropertySource<T> propertySource, EncryptablePropertyResolver resolver, EncryptablePropertyFilter propertyFilter) {
+        PropertySource<T> encryptablePropertySource;
+        if (needsProxyAnyway(propertySource)) {
+            encryptablePropertySource = proxyPropertySource(propertySource, resolver, propertyFilter);
+        } else if (propertySource instanceof  SystemEnvironmentPropertySource) {
+            encryptablePropertySource = (PropertySource<T>) new EncryptableSystemEnvironmentPropertySourceWrapper((SystemEnvironmentPropertySource) propertySource, resolver, propertyFilter);
+        } else if (propertySource instanceof MapPropertySource) {
+            encryptablePropertySource = (PropertySource<T>) new EncryptableMapPropertySourceWrapper((MapPropertySource) propertySource, resolver, propertyFilter);
+        } else if (propertySource instanceof EnumerablePropertySource) {
+            encryptablePropertySource = new EncryptableEnumerablePropertySourceWrapper<>((EnumerablePropertySource) propertySource, resolver, propertyFilter);
+        } else {
+            encryptablePropertySource = new EncryptablePropertySourceWrapper<>(propertySource, resolver, propertyFilter);
+        }
+        return encryptablePropertySource;
+    }
+```
+
+
+
+密文一般长这样`ENC(aJX3jlTcd/vAx1UAB6h5bw==)`  以"ENC(....)"的格式存在。
+
+
+
+
+
+### 解决方案
+
