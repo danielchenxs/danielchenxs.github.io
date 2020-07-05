@@ -32,7 +32,7 @@ SELECT * FROM t_order WHERE proName like 'a%';（索引有效）
 ```
 4. or 两边字段有非索引
 5.当变量采用的是times变量，而表的字段采用的是date变量时.或相反情况。 
-6.使用not in ,not exist等语句时。
+6.使用not in ,not exist等语句时
 
 
 
