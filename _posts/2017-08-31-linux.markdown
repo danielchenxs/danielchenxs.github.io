@@ -11,9 +11,7 @@ tags:
 ---
 ![](/media/15041994938622.jpg)
 
-程序员的日常：`写bug`-->`找bug`-->`改bug`-->`写bug`
 <!-- more -->
-于是就需要经常登录测试或者是生产服务器上进行暗中观察,但如果每次输入都要ssh xxx@xxx.xxx.xxx.xx 然后还要输密码，岂不是爆炸？
 一般有两种方法：
 #### 一、在服务器上存入你的密钥 
 
@@ -30,7 +28,6 @@ Mac 下 安装expect
  
 
 简单使用的话，上手比较快，不赘述了，可以去[这里](http://xstarcd.github.io/wiki/shell/expect.html)看看
-
 
 登录（login.sh）
 
@@ -93,6 +90,5 @@ expect eof
 别名  `ssb`
 方法  `sst 1 c`
 
-（是不是很方便呢？hhh）
 
 
