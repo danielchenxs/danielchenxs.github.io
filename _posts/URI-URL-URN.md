@@ -1,0 +1,7 @@
+- URL（Uniform Resource Locator）表示**资源的位置**，期望提供查找资源的方法
+- URN（Uniform Resource Name）期望为资源提供**持久的**、**位置无关**的标识方式，并允许简单地将**多个命名空间映射到单个URN命名空间**
+	- 例如磁力链接 magnet:?xt=urn:sha1:YNCKHTQC5C
+	- 去中心化
+- URI （Uniform Resource Identifier），用以区分资源，是URL 和URN的超集，用以取代URL 和URN的概念
+	- ![](http://static.chenxs.com/img/fix-dir/2022/04/05/11-13-15-365d018fb95d08ed5ae7251aa7fcf8ec-20220405111315-a25722.png)
+	- 

@@ -1,0 +1,6 @@
+- ![](http://static.chenxs.com/img/fix-dir/2022/04/20/22-36-10-f1b7caa9a317539d7b48d9d29a6d2f11-20220420223609-4b9923.png)
+- 是一种变种的[[Trie树]]
+- 在[[ElasticSearch-Term Index]]中使用
+- 优点
+	- 空间占用更小，通过对词典中单词前缀和后缀的重复利用，压缩了存储空间。（trie树只利用前缀）
+	- 查询速度快。O(len(str))的查询时间复杂度。

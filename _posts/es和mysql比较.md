@@ -1,0 +1,23 @@
+- ES搜索为什么比mysql快
+	- 采用[[ElasticSearch-倒排索引结构|倒排索引]]
+		- 不同查询
+			- 基于分词的全文搜索（非前缀和后缀）
+				- es分词后根据[[FST]]找到倒排索引的位置，迅速获取文档id
+				- mysql只能全表扫描
+			- 精确搜索
+				- 相差不大，可能mysql更快
+			- 复杂搜索，多个索引
+				- mysql
+					- 5.0以前 会选出区分度最高的作为索引查询
+					- 5.0之后 会使用[[mysql-index_merge]]，多个单独索引进行求交集
+				- es会根据多个索引分别查询再求交集，[[es的联合索引查询-交集算法]]
+		- [[ElasticSearch-Term Index]]对比mysql速度更快
+			- mysql
+				- 多次磁盘IO
+			- es
+				- [[ElasticSearch-Term Index]]一次内存IO+[[ElasticSearch-Term Dictionary]]一次磁盘IO，就能获取[[Posting-List]]
+	- 写入文件后具有不变性
+		- 不需要加锁
+		- 读取时，可以被文件系统缓存
+	- ES天然的分布式，降低每个分片的检索规模，并行检索提高效率
+	- 如果使用filter，跳过检索走缓存
